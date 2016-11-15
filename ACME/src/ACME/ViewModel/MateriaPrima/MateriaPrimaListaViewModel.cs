@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ACME.ViewModel.MateriaPrima
 {
-    public class MateriaPrimaListViewModel
+    public class MateriaPrimaListaViewModel
     {
         public int Id { get; set; }
         public string Nome { get; set; }
