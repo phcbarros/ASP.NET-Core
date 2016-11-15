@@ -9,8 +9,10 @@ namespace ACME.Models
         [Required]
         public string Nome { get; set; }
         [Required]
+        [Display(Name = "Estoque mínimo")]
         public int EstoqueMinimo { get; set; }
         [Required]
+        [Display(Name = "Estoque atual")]
         public int EstoqueAtual { get; set; }
     }
 }
