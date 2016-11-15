@@ -10,7 +10,18 @@ namespace ACME.Repositories
         public AcmeContext(DbContextOptions options)
             :base(options)
         {
-            this.Database.EnsureCreated();
+
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MateriaPrima>(m =>
+            {
+                m.ToTable("MateriaPrima");
+                m.Property(p => p.Nome).HasMaxLength(150).IsRequired();
+                m.Property(p => p.EstoqueMinimo).IsRequired();
+                m.Property(p => p.EstoqueAtual).IsRequired();
+            });
         }
     }
 }
