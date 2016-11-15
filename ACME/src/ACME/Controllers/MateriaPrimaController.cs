@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ACME.Models;
 using ACME.Repositories;
+using ACME.ViewModel.MateriaPrima;
 
 namespace ACME.Controllers
 {
@@ -22,7 +23,18 @@ namespace ACME.Controllers
         // GET: MateriaPrimas
         public async Task<IActionResult> Index()
         {
-            return View(await _context.MateriasPrimas.ToListAsync());
+            var materiasPrimas = await _context.MateriasPrimas
+                .OrderBy(x => x.Nome)
+                .Select(x => new MateriaPrimaListaViewModel
+                {
+                    Id = x.Id,
+                    Nome = x.Nome,
+                    EstoqueAtual = x.EstoqueAtual,
+                    EstoqueEstaAbaixoDoMinimo = x.EstoqueAtual <= x.EstoqueMinimo
+                })
+                .ToListAsync();
+
+            return View(materiasPrimas);
         }
 
         // GET: MateriaPrimas/Details/5
