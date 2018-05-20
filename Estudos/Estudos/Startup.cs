@@ -31,6 +31,7 @@ namespace Estudos
                 fvc.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddScoped<ClienteService>();
+            services.AddScoped<ErrorHandlerService>();
             services.AddScoped<ClienteRepository>();
         }
 

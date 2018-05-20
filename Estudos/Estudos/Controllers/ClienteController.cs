@@ -1,6 +1,7 @@
 ﻿using Estudos.Service;
 using Estudos.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,10 +11,12 @@ namespace Estudos.Controllers
     public class ClienteController : Controller
     {
         private readonly ClienteService _service;
+        private readonly ErrorHandlerService _errorHandlerService;
 
-        public ClienteController(ClienteService service)
+        public ClienteController(ClienteService service, ErrorHandlerService errorHandlerService)
         {
             _service = service;
+            _errorHandlerService = errorHandlerService;
         }
 
         [HttpGet]
@@ -53,8 +56,8 @@ namespace Estudos.Controllers
 
             var cliente = _service.Cadastrar(clienteVm);
 
-            if (cliente == null)
-                return BadRequest();
+            if (_errorHandlerService.Errors.Any())
+                return BadRequest(_errorHandlerService.Errors);
 
             return CreatedAtRoute("ObterCliente", new { id = cliente.Id }, cliente);
         }
@@ -69,6 +72,9 @@ namespace Estudos.Controllers
 
             if (item == null)
                 return NotFound();
+
+            if (_errorHandlerService.Errors.Any())
+                return BadRequest(_errorHandlerService.Errors);
 
             return NoContent();
         }

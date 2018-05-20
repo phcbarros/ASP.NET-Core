@@ -1,5 +1,4 @@
-﻿using Estudos.Data;
-using Estudos.Data.Repository;
+﻿using Estudos.Data.Repository;
 using Estudos.Models;
 using Estudos.ViewModel;
 using System.Collections.Generic;
@@ -9,13 +8,13 @@ namespace Estudos.Service
 {
     public class ClienteService
     {
-        private readonly EstudosContext _context;
         private readonly ClienteRepository _repository;
+        private readonly ErrorHandlerService _errorHandlerService;
 
-        public ClienteService(EstudosContext context, ClienteRepository repository)
+        public ClienteService(ClienteRepository repository, ErrorHandlerService errorHandlerService)
         {
-            _context = context;
             _repository = repository;
+            _errorHandlerService = errorHandlerService;
             CadastrarClientes();
         }
 
@@ -34,7 +33,31 @@ namespace Estudos.Service
         {
             var cliente = new Cliente(clienteVm.Nome, clienteVm.Email);
 
+            if (ExisteNome(cliente.Nome))
+                return null;
+
+            if (ExisteEmail(cliente.Email))
+                return null;
+
             return _repository.Cadastrar(cliente);
+        }
+
+        private bool ExisteNome(string nome)
+        {
+            if (!_repository.ExisteNome(nome))
+                return false;
+
+            _errorHandlerService.Adicionar($"Já existe um cliente cadastrado com nome {nome}.");
+            return true;
+        }
+
+        private bool ExisteEmail(string email)
+        {
+            if (!_repository.ExisteEmail(email))
+                return false;
+
+            _errorHandlerService.Adicionar($"Já existe um cliente cadastrado com o e-mail {email}.");
+            return true;
         }
 
         public Cliente ObterCliente(long id)
@@ -74,9 +97,15 @@ namespace Estudos.Service
             if (cliente == null)
                 return null;
 
+            if (ExisteNome(clienteVm.Nome))
+                return null;
+
+            if (ExisteEmail(clienteVm.Email))
+                return null;
+
             cliente.Atualizar(clienteVm.Nome, clienteVm.Email);
 
-            var atualizou =_repository.Atualizar(cliente);
+            var atualizou = _repository.Atualizar(cliente);
 
             return atualizou ? ObterClienteAtivo(id) : null;
         }

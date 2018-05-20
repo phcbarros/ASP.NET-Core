@@ -1,8 +1,6 @@
 ﻿using Estudos.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Estudos.Data.Repository
 {
@@ -52,6 +50,20 @@ namespace Estudos.Data.Repository
             var excluiu = _context.SaveChanges();
 
             return excluiu > 0 ? true : false;
+        }
+
+        public bool ExisteNome(string nome)
+        {
+            var existe =_context.Cliente.Where(c => c.Nome == nome && c.Ativo == true).FirstOrDefault();
+
+            return existe == null ? false : true;
+        }
+
+        public bool ExisteEmail(string email)
+        {
+            var existe = _context.Cliente.Where(c => c.Email == email && c.Ativo == true).FirstOrDefault();
+
+            return existe == null ? false : true;
         }
     }
 }
