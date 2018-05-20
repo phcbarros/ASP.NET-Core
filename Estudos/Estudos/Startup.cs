@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Estudos.Data;
+using Estudos.Service;
 
 namespace Estudos
 {
@@ -30,6 +31,8 @@ namespace Estudos
                 opt.UseInMemoryDatabase("EstudosContext");
             });
             services.AddMvc();
+
+            services.AddScoped<ClienteService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

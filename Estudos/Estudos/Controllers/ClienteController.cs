@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Estudos.Data;
 using Estudos.Models;
+using Estudos.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,30 +15,17 @@ namespace Estudos.Controllers
     [Route("api/[controller]")]
     public class ClienteController : Controller
     {
-        private readonly EstudosContext _context;
+        private readonly ClienteService _service;
 
-        public ClienteController(EstudosContext context)
+        public ClienteController(ClienteService service)
         {
-            _context = context;
-
-            CadastrarClientes();
-        }
-
-        private void CadastrarClientes()
-        {
-            if (_context.Cliente.Any()) return;
-            _context.Cliente.Add(new Cliente { Nome = "JBC", Email = "jbc@jbc.com.br", Ativo = true });
-            _context.Cliente.Add(new Cliente { Nome = "Microsoft", Email = "microsoft@microsoft.com.br", Ativo = true });
-            _context.Cliente.Add(new Cliente { Nome = "IBM", Email = "ibm@ibm.com.br", Ativo = true });
-            _context.Cliente.Add(new Cliente { Nome = "Oracle", Email = "oracle@oracle.com.br", Ativo = true });
-            _context.Cliente.Add(new Cliente { Nome = "Semar", Email = "oracle@oracle.com.br", Ativo = false });
-            _context.SaveChanges();
+            _service = service;
         }
 
         [HttpGet]
         public IActionResult ObterTodosAtivos()
         {
-            var clientes = _context.Cliente.Where(c => c.Ativo == true);
+            var clientes = _service.ObterAtivos();
             if (clientes == null)
                 return NotFound();
             return Ok(clientes);
@@ -46,7 +34,17 @@ namespace Estudos.Controllers
         [HttpGet("{id}", Name = "ObterCliente")]
         public IActionResult ObterClientePorId(long id)
         {
-            var cliente = _context.Cliente.Find(id);
+            var cliente = _service.ObterClienteAtivo(id);
+            if (cliente == null)
+                return NotFound();
+
+            return Ok(cliente);
+        }
+
+        [HttpGet("inativo/{id}")]
+        public IActionResult ObterClienteInativoPorId(long id)
+        {
+            var cliente = _service.ObterCliente(id);
             if (cliente == null)
                 return NotFound();
 
@@ -56,26 +54,18 @@ namespace Estudos.Controllers
         [HttpPost]
         public IActionResult Cadastrar([FromBody] Cliente cliente)
         {
-            cliente.Ativo = true;
-            _context.Cliente.Add(cliente);
-            _context.SaveChanges();
+            var cli = _service.Cadastrar(cliente);
 
-            return CreatedAtRoute("ObterCliente", new { id = cliente.Id }, cliente);
+            return CreatedAtRoute("ObterCliente", new { id = cli.Id }, cli);
         }
 
         [HttpPut("{id}")]
         public IActionResult Alterar(long id, [FromBody] Cliente cliente)
         {
-            var item = _context.Cliente.Find(id);
+            var item = _service.Atualizar(id, cliente);
 
             if (item == null)
                 return NotFound();
-
-            item.Nome = cliente.Nome;
-            item.Email = cliente.Email;
-
-            _context.Cliente.Update(item);
-            _context.SaveChanges();
 
             return NoContent();
         }
@@ -83,17 +73,11 @@ namespace Estudos.Controllers
         [HttpDelete("{id}")]
         public IActionResult Inativar(long id)
         {
-            var cliente = _context.Cliente.Find(id);
+            var inativou = _service.Inativar(id);
 
-            if (cliente == null)
-                return NotFound();
-
-            cliente.Ativo = false;
-
-            _context.Cliente.Update(cliente);
-            _context.SaveChanges();
-
-            return NoContent();
+            if (inativou)
+                return NoContent();
+            return NotFound();
         }
     }
 }
