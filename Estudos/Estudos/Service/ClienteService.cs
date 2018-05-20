@@ -1,4 +1,5 @@
 ﻿using Estudos.Data;
+using Estudos.Data.Repository;
 using Estudos.Models;
 using Estudos.ViewModel;
 using System.Collections.Generic;
@@ -9,37 +10,36 @@ namespace Estudos.Service
     public class ClienteService
     {
         private readonly EstudosContext _context;
+        private readonly ClienteRepository _repository;
 
-        public ClienteService(EstudosContext context)
+        public ClienteService(EstudosContext context, ClienteRepository repository)
         {
             _context = context;
+            _repository = repository;
             CadastrarClientes();
         }
 
         private void CadastrarClientes()
         {
-            if (_context.Cliente.Any()) return;
-            _context.Cliente.Add(new Cliente("JBC", "jbc@jbc.com.br"));
-            _context.Cliente.Add(new Cliente("Microsoft", "microsoft@microsoft.com.br"));
-            _context.Cliente.Add(new Cliente("IBM", "ibm@ibm.com.br"));
-            _context.Cliente.Add(new Cliente("Oracle", "oracle@oracle.com.br"));
-            _context.Cliente.Add(new Cliente("Semar", "semair@gmail.com"));
-            _context.SaveChanges();
+            if (_repository.ObterAtivos().Any()) return;
+
+            _repository.Cadastrar(new Cliente("JBC", "jbc@jbc.com.br"));
+            _repository.Cadastrar(new Cliente("Microsoft", "microsoft@microsoft.com.br"));
+            _repository.Cadastrar(new Cliente("IBM", "ibm@ibm.com.br"));
+            _repository.Cadastrar(new Cliente("Oracle", "oracle@oracle.com.br"));
+            _repository.Cadastrar(new Cliente("Semar", "semair@gmail.com"));
         }
 
         public Cliente Cadastrar(ClienteViewModel clienteVm)
         {
             var cliente = new Cliente(clienteVm.Nome, clienteVm.Email);
-            var x = new Cliente();
 
-            _context.Cliente.Add(cliente);
-            _context.SaveChanges();
-            return cliente;
+            return _repository.Cadastrar(cliente);
         }
 
         public Cliente ObterCliente(long id)
         {
-            var cliente = _context.Cliente.Find(id);
+            var cliente = _repository.ObterCliente(id);
 
             if (cliente == null)
                 return null;
@@ -49,7 +49,7 @@ namespace Estudos.Service
 
         public Cliente ObterClienteAtivo(long id)
         {
-            var cliente = _context.Cliente.Where(c => c.Ativo == true && c.Id == id).FirstOrDefault();
+            var cliente = _repository.ObterClienteAtivo(id);
 
             if (cliente == null)
                 return null;
@@ -59,7 +59,7 @@ namespace Estudos.Service
 
         public IEnumerable<Cliente> ObterAtivos()
         {
-            var clientes = _context.Cliente.Where(c => c.Ativo == true).ToList();
+            var clientes = _repository.ObterAtivos();
 
             if (clientes == null)
                 return null;
@@ -76,10 +76,9 @@ namespace Estudos.Service
 
             cliente.Atualizar(clienteVm.Nome, clienteVm.Email);
 
-            _context.Cliente.Update(cliente);
-            _context.SaveChanges();
+            var atualizou =_repository.Atualizar(cliente);
 
-            return ObterCliente(id);
+            return atualizou ? ObterClienteAtivo(id) : null;
         }
 
         public bool Inativar(long id)
@@ -91,10 +90,7 @@ namespace Estudos.Service
 
             cliente.Inativar();
 
-            _context.Cliente.Update(cliente);
-            var excluiu = _context.SaveChanges();
-
-            return excluiu > 0 ? true : false;
+            return _repository.Inativar(cliente);
         }
     }
 }

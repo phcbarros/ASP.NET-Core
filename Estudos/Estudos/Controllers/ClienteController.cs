@@ -46,14 +46,17 @@ namespace Estudos.Controllers
         }
 
         [HttpPost]
-        public IActionResult Cadastrar([FromBody] ClienteViewModel cliente)
+        public IActionResult Cadastrar([FromBody] ClienteViewModel clienteVm)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var cli = _service.Cadastrar(cliente);
+            var cliente = _service.Cadastrar(clienteVm);
 
-            return CreatedAtRoute("ObterCliente", new { id = cli.Id }, cli);
+            if (cliente == null)
+                return BadRequest();
+
+            return CreatedAtRoute("ObterCliente", new { id = cliente.Id }, cliente);
         }
 
         [HttpPut("{id}")]

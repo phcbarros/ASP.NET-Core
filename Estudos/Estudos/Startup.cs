@@ -1,4 +1,5 @@
 ﻿using Estudos.Data;
+using Estudos.Data.Repository;
 using Estudos.Service;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
@@ -6,8 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace Estudos
 {
@@ -32,6 +31,7 @@ namespace Estudos
                 fvc.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddScoped<ClienteService>();
+            services.AddScoped<ClienteRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
