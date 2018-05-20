@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Estudos.Data;
-using Estudos.Models;
-using Estudos.Service;
+﻿using Estudos.Service;
+using Estudos.ViewModel;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -52,16 +46,22 @@ namespace Estudos.Controllers
         }
 
         [HttpPost]
-        public IActionResult Cadastrar([FromBody] Cliente cliente)
+        public IActionResult Cadastrar([FromBody] ClienteViewModel cliente)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var cli = _service.Cadastrar(cliente);
 
             return CreatedAtRoute("ObterCliente", new { id = cli.Id }, cli);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Alterar(long id, [FromBody] Cliente cliente)
+        public IActionResult Alterar(long id, [FromBody] ClienteViewModel cliente)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var item = _service.Atualizar(id, cliente);
 
             if (item == null)

@@ -1,9 +1,8 @@
 ﻿using Estudos.Data;
 using Estudos.Models;
-using System;
+using Estudos.ViewModel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Estudos.Service
 {
@@ -20,17 +19,19 @@ namespace Estudos.Service
         private void CadastrarClientes()
         {
             if (_context.Cliente.Any()) return;
-            _context.Cliente.Add(new Cliente { Nome = "JBC", Email = "jbc@jbc.com.br", Ativo = true });
-            _context.Cliente.Add(new Cliente { Nome = "Microsoft", Email = "microsoft@microsoft.com.br", Ativo = true });
-            _context.Cliente.Add(new Cliente { Nome = "IBM", Email = "ibm@ibm.com.br", Ativo = true });
-            _context.Cliente.Add(new Cliente { Nome = "Oracle", Email = "oracle@oracle.com.br", Ativo = true });
-            _context.Cliente.Add(new Cliente { Nome = "Semar", Email = "oracle@oracle.com.br", Ativo = false });
+            _context.Cliente.Add(new Cliente("JBC", "jbc@jbc.com.br"));
+            _context.Cliente.Add(new Cliente("Microsoft", "microsoft@microsoft.com.br"));
+            _context.Cliente.Add(new Cliente("IBM", "ibm@ibm.com.br"));
+            _context.Cliente.Add(new Cliente("Oracle", "oracle@oracle.com.br"));
+            _context.Cliente.Add(new Cliente("Semar", "semair@gmail.com"));
             _context.SaveChanges();
         }
 
-        public Cliente Cadastrar(Cliente cliente)
+        public Cliente Cadastrar(ClienteViewModel clienteVm)
         {
-            cliente.Ativo = true;
+            var cliente = new Cliente(clienteVm.Nome, clienteVm.Email);
+            var x = new Cliente();
+
             _context.Cliente.Add(cliente);
             _context.SaveChanges();
             return cliente;
@@ -66,15 +67,14 @@ namespace Estudos.Service
             return clientes;
         }
 
-        public Cliente Atualizar(long id, Cliente cliente)
+        public Cliente Atualizar(long id, ClienteViewModel clienteVm)
         {
-            var result = ObterClienteAtivo(id);
+            var cliente = ObterClienteAtivo(id);
 
-            if (result == null)
+            if (cliente == null)
                 return null;
 
-            result.Nome = cliente.Nome;
-            result.Email = cliente.Email;
+            cliente.Atualizar(clienteVm.Nome, clienteVm.Email);
 
             _context.Cliente.Update(cliente);
             _context.SaveChanges();
@@ -89,12 +89,12 @@ namespace Estudos.Service
             if (cliente == null)
                 return false;
 
-            cliente.Ativo = false;
+            cliente.Inativar();
 
             _context.Cliente.Update(cliente);
             var excluiu = _context.SaveChanges();
 
-            return excluiu > 0 ? true : false;          
+            return excluiu > 0 ? true : false;
         }
     }
 }
